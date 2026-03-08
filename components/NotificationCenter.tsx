@@ -2,11 +2,11 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bell, X, CheckCircle, AlertCircle, Info } from 'lucide-react';
+import { Bell, X, AlertCircle, CheckCircle2, Clock } from 'lucide-react';
 
 interface Notification {
   id: number;
-  type: 'success' | 'warning' | 'info';
+  type: 'warning' | 'success' | 'info';
   title: string;
   message: string;
   timestamp: Date;
@@ -16,63 +16,92 @@ interface NotificationCenterProps {
   isDarkMode: boolean;
 }
 
+const COLORS = {
+  primary: '#0f766e',
+  accent: '#059669',
+  secondary: '#f3f4f6',
+  textDark: '#111827',
+  textLight: '#6b7280',
+  border: '#e5e7eb',
+  background: '#ffffff',
+  lightBg: '#f9fafb',
+};
+
 const NotificationCenter: React.FC<NotificationCenterProps> = ({ isDarkMode }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([
     {
       id: 1,
-      type: 'success',
-      title: 'AC Filter Changed',
-      message: 'Successfully marked as completed',
-      timestamp: new Date(Date.now() - 5 * 60000),
+      type: 'warning',
+      title: 'Warranty Expiring',
+      message: 'AC Unit warranty expires in 30 days',
+      timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
     },
     {
       id: 2,
-      type: 'warning',
-      title: 'Task Due Soon',
-      message: 'Check roof gutters in 2 days',
-      timestamp: new Date(Date.now() - 30 * 60000),
+      type: 'success',
+      title: 'Task Completed',
+      message: 'You completed "Change AC Filter"',
+      timestamp: new Date(Date.now() - 5 * 60 * 60 * 1000),
     },
     {
       id: 3,
       type: 'info',
-      title: 'Scheduled Reminder',
-      message: 'Time to inspect HVAC system',
-      timestamp: new Date(Date.now() - 2 * 60 * 60000),
+      title: 'Upcoming Task',
+      message: 'Water heater maintenance due in 7 days',
+      timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
     },
   ]);
 
-  const bgColor = isDarkMode ? '#334155' : 'white';
-  const textColor = isDarkMode ? '#f1f5f9' : '#1e293b';
-  const borderColor = isDarkMode ? '#475569' : '#e2e8f0';
-
-  const removeNotification = (id: number) => {
-    setNotifications(notifications.filter(n => n.id !== id));
+  const dismissNotification = (id: number) => {
+    setNotifications(notifications.filter((n) => n.id !== id));
   };
 
-  const getNotificationIcon = (type: string) => {
-    switch (type) {
-      case 'success':
-        return { icon: CheckCircle, color: '#10b981' };
-      case 'warning':
-        return { icon: AlertCircle, color: '#f59e0b' };
-      case 'info':
-        return { icon: Info, color: '#3b82f6' };
-      default:
-        return { icon: Bell, color: '#64748b' };
-    }
+  const clearAll = () => {
+    setNotifications([]);
+    setIsOpen(false);
   };
 
   const formatTime = (date: Date) => {
     const now = new Date();
-    const diff = now.getTime() - date.getTime();
-    const minutes = Math.floor(diff / 60000);
-    const hours = Math.floor(diff / 3600000);
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
 
-    if (minutes < 1) return 'Just now';
-    if (minutes < 60) return `${minutes}m ago`;
-    if (hours < 24) return `${hours}h ago`;
-    return `${Math.floor(hours / 24)}d ago`;
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays < 7) return `${diffDays}d ago`;
+    return date.toLocaleDateString();
+  };
+
+  const getNotificationIcon = (type: string) => {
+    switch (type) {
+      case 'warning':
+        return AlertCircle;
+      case 'success':
+        return CheckCircle2;
+      case 'info':
+      default:
+        return Clock;
+    }
+  };
+
+  const getNotificationColor = (type: string) => {
+    switch (type) {
+      case 'warning':
+        return { bg: '#fef3c7', border: '#f59e0b', text: '#92400e' };
+      case 'success':
+        return { bg: '#d1fae5', border: COLORS.accent, text: '#065f46' };
+      case 'info':
+      default:
+        return { bg: `${COLORS.primary}15`, border: COLORS.primary, text: COLORS.primary };
+    }
+  };
+
+  const SPRING = {
+    smooth: { type: "spring" as const, stiffness: 300, damping: 35 },
   };
 
   return (
@@ -81,17 +110,23 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ isDarkMode }) =
       <motion.button
         onClick={() => setIsOpen(!isOpen)}
         whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.95 }}
+        whileTap={{ scale: 0.9 }}
         style={{
-          position: 'relative',
-          background: 'transparent',
-          border: 'none',
+          background: notifications.length > 0 ? COLORS.lightBg : 'transparent',
+          border: `1px solid ${COLORS.border}`,
+          borderRadius: '8px',
+          padding: '8px',
           cursor: 'pointer',
-          color: textColor,
-          fontSize: '24px',
+          color: COLORS.primary,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          position: 'relative',
         }}
       >
-        <Bell size={24} />
+        <Bell size={20} />
+
+        {/* Badge */}
         {notifications.length > 0 && (
           <motion.div
             initial={{ scale: 0 }}
@@ -109,7 +144,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ isDarkMode }) =
               alignItems: 'center',
               justifyContent: 'center',
               fontSize: '12px',
-              fontWeight: 'bold',
+              fontWeight: '700',
             }}
           >
             {notifications.length}
@@ -121,158 +156,207 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ isDarkMode }) =
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -20, scale: 0.95 }}
+            initial={{ opacity: 0, y: -10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -20, scale: 0.95 }}
+            exit={{ opacity: 0, y: -10, scale: 0.95 }}
+            transition={SPRING}
+            onClick={(e) => e.stopPropagation()}
             style={{
               position: 'absolute',
-              top: '50px',
               right: 0,
-              width: '380px',
-              background: bgColor,
-              borderRadius: '12px',
-              border: `1px solid ${borderColor}`,
-              boxShadow: '0 20px 25px rgba(0, 0, 0, 0.15)',
-              zIndex: 300,
+              top: 'calc(100% + 12px)',
+              width: 'clamp(300px, 90vw, 400px)',
+              background: COLORS.background,
+              borderRadius: '16px',
+              border: `1px solid ${COLORS.border}`,
+              boxShadow: '0 20px 40px rgba(0, 0, 0, 0.12)',
+              zIndex: 1000,
               maxHeight: '500px',
-              overflowY: 'auto',
+              display: 'flex',
+              flexDirection: 'column',
+              overflow: 'hidden',
             }}
           >
             {/* Header */}
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              padding: '16px',
-              borderBottom: `1px solid ${borderColor}`,
-              background: isDarkMode ? '#1e293b' : '#f8fafc',
-              borderRadius: '12px 12px 0 0',
-            }}>
-              <h3 style={{
-                fontSize: '16px',
-                fontWeight: '600',
-                color: textColor,
-              }}>
-                Notifications
-              </h3>
-              <button
-                onClick={() => setIsOpen(false)}
+            <div
+              style={{
+                padding: '16px 20px',
+                borderBottom: `1px solid ${COLORS.border}`,
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
+              <h3
                 style={{
-                  background: 'transparent',
-                  border: 'none',
-                  cursor: 'pointer',
-                  color: textColor,
-                  padding: '4px',
+                  fontSize: '14px',
+                  fontWeight: '700',
+                  color: COLORS.textDark,
+                  margin: 0,
                 }}
               >
-                <X size={20} />
-              </button>
+                Notifications
+              </h3>
+              {notifications.length > 0 && (
+                <motion.button
+                  onClick={clearAll}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontSize: '12px',
+                    fontWeight: '600',
+                    color: COLORS.primary,
+                  }}
+                >
+                  Clear All
+                </motion.button>
+              )}
             </div>
 
             {/* Notifications List */}
             {notifications.length > 0 ? (
-              <div>
-                {notifications.map((notif) => {
-                  const { icon: Icon, color } = getNotificationIcon(notif.type);
-                  return (
-                    <motion.div
-                      key={notif.id}
-                      layout
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: 20 }}
-                      style={{
-                        padding: '16px',
-                        borderBottom: `1px solid ${borderColor}`,
-                        display: 'flex',
-                        gap: '12px',
-                        cursor: 'pointer',
-                        transition: 'all 0.3s ease',
-                      }}
-                      onMouseEnter={(e) => {
-                        (e.currentTarget as HTMLElement).style.background = isDarkMode ? '#475569' : '#f1f5f9';
-                      }}
-                      onMouseLeave={(e) => {
-                        (e.currentTarget as HTMLElement).style.background = 'transparent';
-                      }}
-                    >
-                      <Icon size={20} style={{ color, flexShrink: 0, marginTop: '2px' }} />
-                      <div style={{ flex: 1 }}>
-                        <p style={{
-                          fontSize: '14px',
-                          fontWeight: '600',
-                          color: textColor,
-                          marginBottom: '4px',
-                        }}>
-                          {notif.title}
-                        </p>
-                        <p style={{
-                          fontSize: '12px',
-                          color: isDarkMode ? '#cbd5e1' : '#64748b',
-                          marginBottom: '4px',
-                        }}>
-                          {notif.message}
-                        </p>
-                        <p style={{
-                          fontSize: '11px',
-                          color: isDarkMode ? '#94a3b8' : '#94a3b8',
-                        }}>
-                          {formatTime(notif.timestamp)}
-                        </p>
-                      </div>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          removeNotification(notif.id);
-                        }}
+              <div
+                style={{
+                  flex: 1,
+                  overflowY: 'auto',
+                  padding: '8px',
+                }}
+              >
+                <AnimatePresence mode="popLayout">
+                  {notifications.map((notif, idx) => {
+                    const Icon = getNotificationIcon(notif.type);
+                    const colors = getNotificationColor(notif.type);
+
+                    return (
+                      <motion.div
+                        key={notif.id}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: 20 }}
+                        layout
+                        transition={{ delay: idx * 0.05 }}
                         style={{
-                          background: 'transparent',
-                          border: 'none',
-                          cursor: 'pointer',
-                          color: textColor,
-                          padding: '4px',
-                          opacity: 0.5,
+                          background: colors.bg,
+                          borderLeft: `4px solid ${colors.border}`,
+                          borderRadius: '8px',
+                          padding: '12px',
+                          marginBottom: '8px',
+                          display: 'flex',
+                          gap: '12px',
+                          alignItems: 'flex-start',
                         }}
                       >
-                        <X size={16} />
-                      </button>
-                    </motion.div>
-                  );
-                })}
+                        <Icon
+                          size={18}
+                          style={{
+                            color: colors.text,
+                            flexShrink: 0,
+                            marginTop: '2px',
+                          }}
+                        />
+
+                        <div style={{ flex: 1 }}>
+                          <p
+                            style={{
+                              fontSize: '13px',
+                              fontWeight: '700',
+                              color: colors.text,
+                              margin: '0 0 4px 0',
+                            }}
+                          >
+                            {notif.title}
+                          </p>
+                          <p
+                            style={{
+                              fontSize: '12px',
+                              color: colors.text,
+                              margin: '0 0 6px 0',
+                              opacity: 0.85,
+                              lineHeight: '1.4',
+                            }}
+                          >
+                            {notif.message}
+                          </p>
+                          <p
+                            style={{
+                              fontSize: '11px',
+                              color: colors.text,
+                              opacity: 0.7,
+                              margin: 0,
+                            }}
+                          >
+                            {formatTime(notif.timestamp)}
+                          </p>
+                        </div>
+
+                        <motion.button
+                          onClick={() => dismissNotification(notif.id)}
+                          whileHover={{ scale: 1.15 }}
+                          whileTap={{ scale: 0.85 }}
+                          style={{
+                            background: 'transparent',
+                            border: 'none',
+                            cursor: 'pointer',
+                            padding: '4px',
+                            color: colors.text,
+                            opacity: 0.5,
+                            flexShrink: 0,
+                          }}
+                        >
+                          <X size={16} />
+                        </motion.button>
+                      </motion.div>
+                    );
+                  })}
+                </AnimatePresence>
               </div>
             ) : (
-              <div style={{
-                padding: '32px 16px',
-                textAlign: 'center',
-                color: isDarkMode ? '#cbd5e1' : '#64748b',
-              }}>
-                <p>No notifications yet</p>
-              </div>
-            )}
-
-            {/* Clear All Button */}
-            {notifications.length > 0 && (
-              <div style={{
-                padding: '12px 16px',
-                borderTop: `1px solid ${borderColor}`,
-                textAlign: 'center',
-              }}>
-                <button
-                  onClick={() => setNotifications([])}
+              <div
+                style={{
+                  padding: '32px 20px',
+                  textAlign: 'center',
+                }}
+              >
+                <Bell
+                  size={32}
                   style={{
-                    background: 'transparent',
-                    border: 'none',
-                    color: '#3b82f6',
-                    cursor: 'pointer',
-                    fontSize: '12px',
-                    fontWeight: '600',
+                    color: COLORS.textLight,
+                    opacity: 0.5,
+                    marginBottom: '8px',
+                  }}
+                />
+                <p
+                  style={{
+                    fontSize: '13px',
+                    color: COLORS.textLight,
+                    margin: 0,
                   }}
                 >
-                  Clear All
-                </button>
+                  No notifications yet
+                </p>
               </div>
             )}
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Backdrop */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsOpen(false)}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              zIndex: 999,
+            }}
+          />
         )}
       </AnimatePresence>
     </div>

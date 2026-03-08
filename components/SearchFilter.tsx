@@ -1,7 +1,8 @@
 'use client';
 
 import React from 'react';
-import { Search } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Search, Sparkles } from 'lucide-react';
 
 interface SearchFilterProps {
   searchTerm: string;
@@ -15,6 +16,17 @@ interface SearchFilterProps {
   isDarkMode: boolean;
 }
 
+const COLORS = {
+  primary: '#0f766e',
+  accent: '#059669',
+  secondary: '#f3f4f6',
+  textDark: '#111827',
+  textLight: '#6b7280',
+  border: '#e5e7eb',
+  background: '#ffffff',
+  lightBg: '#f9fafb',
+};
+
 const SearchFilter: React.FC<SearchFilterProps> = ({
   searchTerm,
   setSearchTerm,
@@ -26,106 +38,170 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
   rooms,
   isDarkMode,
 }) => {
-  const cardBg = isDarkMode ? '#334155' : 'white';
-  const inputBg = isDarkMode ? '#1e293b' : 'white';
-  const inputBorder = isDarkMode ? '#475569' : '#e2e8f0';
-  const textColor = isDarkMode ? '#f1f5f9' : '#1e293b';
-  const secondaryText = isDarkMode ? '#cbd5e1' : '#94a3b8';
+  const SPRING = {
+    smooth: { type: "spring" as const, stiffness: 300, damping: 35 },
+  };
 
   return (
-    <div style={{
-      background: cardBg,
-      borderRadius: '12px',
-      padding: '16px',
-      boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-      border: `1px solid ${inputBorder}`,
-    }}>
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-        gap: '12px',
-      }}>
-        <div style={{ position: 'relative' }}>
-          <Search style={{
-            position: 'absolute',
-            left: '12px',
-            top: '10px',
-            color: secondaryText,
-          }} size={18} />
-          <input
+    <motion.div
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={SPRING}
+      style={{
+        background: COLORS.background,
+        borderRadius: '16px',
+        padding: 'clamp(20px, 4vw, 28px)',
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.06)',
+        border: `1px solid ${COLORS.border}`,
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+    >
+      {/* Header */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          marginBottom: '20px',
+        }}
+      >
+        <Sparkles size={20} style={{ color: COLORS.primary }} />
+        <h3
+          style={{
+            fontSize: 'clamp(16px, 3vw, 18px)',
+            fontWeight: '700',
+            color: COLORS.textDark,
+            margin: 0,
+          }}
+        >
+          Find Tasks
+        </h3>
+      </div>
+
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns:
+            'repeat(auto-fit, minmax(clamp(150px, 100%, 250px), 1fr))',
+          gap: 'clamp(12px, 2vw, 16px)',
+        }}
+      >
+        {/* Search Input */}
+        <motion.div style={{ position: 'relative' }}>
+          <Search
+            size={18}
+            style={{
+              position: 'absolute',
+              left: '12px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              color: COLORS.textLight,
+              pointerEvents: 'none',
+            }}
+          />
+          <motion.input
             type="text"
             placeholder="Search tasks..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            whileFocus={{ scale: 1.01 }}
             style={{
               width: '100%',
               paddingLeft: '40px',
-              paddingRight: '12px',
-              paddingTop: '10px',
-              paddingBottom: '10px',
-              border: `2px solid ${inputBorder}`,
-              borderRadius: '8px',
+              paddingRight: '16px',
+              paddingTop: '12px',
+              paddingBottom: '12px',
+              border: `1px solid ${COLORS.border}`,
+              borderRadius: '12px',
               fontSize: '14px',
               fontFamily: '"Inter", sans-serif',
               boxSizing: 'border-box',
               transition: 'all 0.3s ease',
-              background: inputBg,
-              color: textColor,
+              background: COLORS.background,
+              color: COLORS.textDark,
             }}
-            onFocus={(e) => (e.currentTarget.style.borderColor = '#10b981')}
-            onBlur={(e) => (e.currentTarget.style.borderColor = inputBorder)}
+            onFocus={(e) => {
+              (e.currentTarget as HTMLElement).style.borderColor =
+                COLORS.primary;
+              (e.currentTarget as HTMLElement).style.boxShadow = `0 0 12px ${COLORS.primary}20`;
+            }}
+            onBlur={(e) => {
+              (e.currentTarget as HTMLElement).style.borderColor = COLORS.border;
+              (e.currentTarget as HTMLElement).style.boxShadow = 'none';
+            }}
           />
-        </div>
+        </motion.div>
 
-        <select
+        {/* Category Select */}
+        <motion.select
           value={filterCategory}
           onChange={(e) => setFilterCategory(e.target.value)}
+          whileFocus={{ scale: 1.01 }}
           style={{
-            padding: '10px 12px',
-            border: `2px solid ${inputBorder}`,
-            borderRadius: '8px',
+            padding: '12px 16px',
+            border: `1px solid ${COLORS.border}`,
+            borderRadius: '12px',
             fontSize: '14px',
             fontFamily: '"Inter", sans-serif',
             cursor: 'pointer',
             boxSizing: 'border-box',
             transition: 'all 0.3s ease',
-            background: inputBg,
-            color: textColor,
+            background: COLORS.background,
+            color: COLORS.textDark,
           }}
-          onFocus={(e) => (e.currentTarget.style.borderColor = '#10b981')}
-          onBlur={(e) => (e.currentTarget.style.borderColor = inputBorder)}
+          onFocus={(e) => {
+            (e.currentTarget as HTMLElement).style.borderColor = COLORS.primary;
+            (e.currentTarget as HTMLElement).style.boxShadow = `0 0 12px ${COLORS.primary}20`;
+          }}
+          onBlur={(e) => {
+            (e.currentTarget as HTMLElement).style.borderColor = COLORS.border;
+            (e.currentTarget as HTMLElement).style.boxShadow = 'none';
+          }}
         >
           <option value="all">All Categories</option>
-          {categories.map(cat => (
-            <option key={cat} value={cat}>{cat}</option>
+          {categories.map((cat) => (
+            <option key={cat} value={cat}>
+              {cat}
+            </option>
           ))}
-        </select>
+        </motion.select>
 
-        <select
+        {/* Room Select */}
+        <motion.select
           value={filterRoom}
           onChange={(e) => setFilterRoom(e.target.value)}
+          whileFocus={{ scale: 1.01 }}
           style={{
-            padding: '10px 12px',
-            border: `2px solid ${inputBorder}`,
-            borderRadius: '8px',
+            padding: '12px 16px',
+            border: `1px solid ${COLORS.border}`,
+            borderRadius: '12px',
             fontSize: '14px',
             fontFamily: '"Inter", sans-serif',
             cursor: 'pointer',
             boxSizing: 'border-box',
             transition: 'all 0.3s ease',
-            background: inputBg,
-            color: textColor,
+            background: COLORS.background,
+            color: COLORS.textDark,
           }}
-          onFocus={(e) => (e.currentTarget.style.borderColor = '#10b981')}
-          onBlur={(e) => (e.currentTarget.style.borderColor = inputBorder)}
+          onFocus={(e) => {
+            (e.currentTarget as HTMLElement).style.borderColor = COLORS.primary;
+            (e.currentTarget as HTMLElement).style.boxShadow = `0 0 12px ${COLORS.primary}20`;
+          }}
+          onBlur={(e) => {
+            (e.currentTarget as HTMLElement).style.borderColor = COLORS.border;
+            (e.currentTarget as HTMLElement).style.boxShadow = 'none';
+          }}
         >
           <option value="all">All Rooms</option>
-          {rooms.map(room => (
-            <option key={room} value={room}>{room}</option>
+          {rooms.map((room) => (
+            <option key={room} value={room}>
+              {room}
+            </option>
           ))}
-        </select>
+        </motion.select>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

@@ -2,7 +2,18 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Menu, X, LayoutDashboard, CheckSquare, Calendar, Home, Users, Settings, Bell } from 'lucide-react';
+import {
+  LayoutDashboard,
+  CheckSquare,
+  Calendar,
+  Home,
+  Users,
+  Package,
+  Settings,
+  ChevronLeft,
+  ChevronRight,
+  Bell,
+} from 'lucide-react';
 
 interface SidebarProps {
   activeTab: string;
@@ -11,76 +22,151 @@ interface SidebarProps {
   onSettingsClick: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isDarkMode, onSettingsClick }) => {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+const COLORS = {
+  primary: '#0f766e',
+  accent: '#059669',
+  secondary: '#f3f4f6',
+  textDark: '#111827',
+  textLight: '#6b7280',
+  border: '#e5e7eb',
+  background: '#ffffff',
+  lightBg: '#f9fafb',
+};
 
-  const bgColor = isDarkMode ? '#1e293b' : 'white';
-  const textColor = isDarkMode ? '#f1f5f9' : '#1e293b';
-  const hoverBg = isDarkMode ? '#334155' : '#f1f5f9';
-  const activeBg = '#10b981';
-  const borderColor = isDarkMode ? '#334155' : '#e2e8f0';
+const Sidebar: React.FC<SidebarProps> = ({
+  activeTab,
+  setActiveTab,
+  isDarkMode,
+  onSettingsClick,
+}) => {
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'tasks', label: 'Tasks', icon: CheckSquare },
     { id: 'calendar', label: 'Calendar', icon: Calendar },
-    { id: 'homes', label: 'My Homes', icon: Home },
+    { id: 'homes', label: 'Properties', icon: Home },
     { id: 'team', label: 'Team', icon: Users },
-    { id: 'inventory', label: 'Inventory', icon: Home },
+    { id: 'inventory', label: 'Inventory', icon: Package },
   ];
+
+  const SPRING = {
+    smooth: { type: "spring" as const, stiffness: 300, damping: 35 },
+  };
 
   return (
     <motion.div
-      initial={{ x: -300 }}
+      initial={{ x: -280 }}
       animate={{ x: 0 }}
+      transition={SPRING}
       style={{
-        background: bgColor,
-        borderRight: `1px solid ${borderColor}`,
-        width: isCollapsed ? '80px' : '280px',
-        height: '100vh',
         position: 'fixed',
         left: 0,
         top: 0,
+        height: '100vh',
+        width: isCollapsed ? '80px' : '280px',
+        background: COLORS.background,
+        borderRight: `1px solid ${COLORS.border}`,
         display: 'flex',
         flexDirection: 'column',
-        padding: '20px',
         transition: 'width 0.3s ease',
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.06)',
         zIndex: 100,
+        overflowY: 'auto',
       }}
     >
-      {/* Header with Logo + Toggle */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '32px',
-      }}>
-        {!isCollapsed && (
-          <h2 style={{
-            fontSize: '24px',
-            fontWeight: 'bold',
-            color: textColor,
-            fontFamily: '"Playfair Display", serif',
-          }}>
-            HM Pro
-          </h2>
-        )}
-        <button
-          onClick={() => setIsCollapsed(!isCollapsed)}
+      {/* Logo Section */}
+      <div
+        style={{
+          padding: isCollapsed ? '20px 12px' : '24px',
+          borderBottom: `1px solid ${COLORS.border}`,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '12px',
+        }}
+      >
+        <motion.div
+          animate={{ scale: isCollapsed ? 1 : 1 }}
           style={{
-            background: 'transparent',
-            border: 'none',
-            cursor: 'pointer',
-            color: textColor,
-            padding: '8px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            flex: 1,
           }}
         >
-          {isCollapsed ? <Menu size={24} /> : <X size={24} />}
-        </button>
+          <div
+            style={{
+              width: '40px',
+              height: '40px',
+              borderRadius: '10px',
+              background: `linear-gradient(135deg, ${COLORS.primary} 0%, ${COLORS.accent} 100%)`,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'white',
+              fontWeight: '700',
+              fontSize: '18px',
+              flexShrink: 0,
+            }}
+          >
+            H
+          </div>
+          {!isCollapsed && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.1 }}
+            >
+              <p
+                style={{
+                  fontSize: '16px',
+                  fontWeight: '700',
+                  color: COLORS.textDark,
+                  margin: 0,
+                }}
+              >
+                Home Pro
+              </p>
+              <p
+                style={{
+                  fontSize: '11px',
+                  color: COLORS.textLight,
+                  margin: '2px 0 0 0',
+                }}
+              >
+                Maintenance
+              </p>
+            </motion.div>
+          )}
+        </motion.div>
+
+        <motion.button
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          style={{
+            background: COLORS.lightBg,
+            border: 'none',
+            borderRadius: '8px',
+            padding: '6px',
+            cursor: 'pointer',
+            color: COLORS.primary,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          {isCollapsed ? (
+            <ChevronRight size={18} />
+          ) : (
+            <ChevronLeft size={18} />
+          )}
+        </motion.button>
       </div>
 
       {/* Menu Items */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      <nav style={{ flex: 1, padding: '16px 8px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
         {menuItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;
@@ -89,73 +175,69 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isDarkMode, 
             <motion.button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               style={{
-                background: isActive ? activeBg : 'transparent',
-                color: isActive ? 'white' : textColor,
-                border: 'none',
+                background: isActive
+                  ? `linear-gradient(135deg, ${COLORS.primary} 0%, ${COLORS.accent} 100%)`
+                  : COLORS.background,
+                color: isActive ? 'white' : COLORS.textDark,
+                border: isActive ? 'none' : `1px solid ${COLORS.border}`,
                 borderRadius: '12px',
-                padding: isCollapsed ? '12px' : '12px 16px',
+                padding: isCollapsed ? '12px' : '14px 16px',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                gap: isCollapsed ? '0' : '12px',
+                gap: '12px',
+                fontWeight: isActive ? '700' : '600',
+                fontSize: '14px',
                 transition: 'all 0.3s ease',
+                width: '100%',
                 justifyContent: isCollapsed ? 'center' : 'flex-start',
+                boxShadow: isActive ? `0 4px 12px ${COLORS.primary}20` : 'none',
               }}
-              onMouseEnter={(e) => {
-                if (!isActive) {
-                  (e.currentTarget as HTMLElement).style.background = hoverBg;
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!isActive) {
-                  (e.currentTarget as HTMLElement).style.background = 'transparent';
-                }
-              }}
+              title={isCollapsed ? item.label : ''}
             >
-              <Icon size={20} />
-              {!isCollapsed && <span style={{ fontSize: '14px', fontWeight: '600' }}>{item.label}</span>}
+              <Icon size={20} style={{ flexShrink: 0 }} />
+              {!isCollapsed && <span>{item.label}</span>}
             </motion.button>
           );
         })}
-      </div>
+      </nav>
 
-      {/* Bottom Settings */}
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '12px',
-        borderTop: `1px solid ${borderColor}`,
-        paddingTop: '20px',
-      }}>
+      {/* Bottom Section */}
+      <div
+        style={{
+          padding: '16px 8px',
+          borderTop: `1px solid ${COLORS.border}`,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '8px',
+        }}
+      >
         <motion.button
           onClick={onSettingsClick}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
           style={{
-            background: 'transparent',
-            color: textColor,
-            border: 'none',
+            background: COLORS.lightBg,
+            color: COLORS.textDark,
+            border: `1px solid ${COLORS.border}`,
             borderRadius: '12px',
-            padding: isCollapsed ? '12px' : '12px 16px',
+            padding: isCollapsed ? '12px' : '14px 16px',
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
-            gap: isCollapsed ? '0' : '12px',
-            transition: 'all 0.3s ease',
+            gap: '12px',
+            fontWeight: '600',
+            fontSize: '14px',
+            width: '100%',
             justifyContent: isCollapsed ? 'center' : 'flex-start',
           }}
-          onMouseEnter={(e) => {
-            (e.currentTarget as HTMLElement).style.background = hoverBg;
-          }}
-          onMouseLeave={(e) => {
-            (e.currentTarget as HTMLElement).style.background = 'transparent';
-          }}
+          title={isCollapsed ? 'Settings' : ''}
         >
-          <Settings size={20} />
-          {!isCollapsed && <span style={{ fontSize: '14px', fontWeight: '600' }}>Settings</span>}
+          <Settings size={20} style={{ flexShrink: 0 }} />
+          {!isCollapsed && <span>Settings</span>}
         </motion.button>
       </div>
     </motion.div>

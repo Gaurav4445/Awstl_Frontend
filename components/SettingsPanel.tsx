@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Bell, Palette, Mail, Clock } from 'lucide-react';
+import { X, Moon, Sun, Bell, Mail, MessageSquare, Settings2 } from 'lucide-react';
 
 interface SettingsPanelProps {
   isOpen: boolean;
@@ -11,71 +11,41 @@ interface SettingsPanelProps {
   onDarkModeToggle: () => void;
 }
 
+const COLORS = {
+  primary: '#0f766e',
+  accent: '#059669',
+  secondary: '#f3f4f6',
+  textDark: '#111827',
+  textLight: '#6b7280',
+  border: '#e5e7eb',
+  background: '#ffffff',
+  lightBg: '#f9fafb',
+};
+
 const SettingsPanel: React.FC<SettingsPanelProps> = ({
   isOpen,
   onClose,
   isDarkMode,
   onDarkModeToggle,
 }) => {
-  const [settings, setSettings] = useState({
-    notifications: true,
+  const [settings, setSettings] = React.useState({
+    pushNotifications: true,
+    soundNotifications: true,
     emailReminders: true,
     smsReminders: false,
-    soundEnabled: true,
-    autoComplete: false,
     weekStartDay: 'Monday',
   });
 
-  const bgColor = isDarkMode ? '#334155' : 'white';
-  const textColor = isDarkMode ? '#f1f5f9' : '#1e293b';
-  const secondaryText = isDarkMode ? '#cbd5e1' : '#64748b';
-  const inputBg = isDarkMode ? '#1e293b' : '#f8fafc';
-  const borderColor = isDarkMode ? '#475569' : '#e2e8f0';
-  const accentColor = '#10b981';
-
   const toggleSetting = (key: keyof typeof settings) => {
-    setSettings({
-      ...settings,
-      [key]: !settings[key],
-    });
+    setSettings((prev) => ({
+      ...prev,
+      [key]: typeof prev[key] === 'boolean' ? !prev[key] : prev[key],
+    }));
   };
 
-  const settingsGroups = [
-    {
-      icon: Palette,
-      title: 'Appearance',
-      color: '#ec4899',
-      settings: [
-        { key: 'notifications', label: 'Dark Mode', toggle: true, isMain: true }
-      ]
-    },
-    {
-      icon: Bell,
-      title: 'Notifications',
-      color: '#3b82f6',
-      settings: [
-        { key: 'notifications', label: 'Push Notifications' },
-        { key: 'soundEnabled', label: 'Sound Effects' },
-      ]
-    },
-    {
-      icon: Mail,
-      title: 'Communication',
-      color: '#f59e0b',
-      settings: [
-        { key: 'emailReminders', label: 'Email Reminders' },
-        { key: 'smsReminders', label: 'SMS Reminders' },
-      ]
-    },
-    {
-      icon: Clock,
-      title: 'Preferences',
-      color: '#8b5cf6',
-      settings: [
-        { key: 'autoComplete', label: 'Auto-complete Tasks' },
-      ]
-    }
-  ];
+  const SPRING = {
+    smooth: { type: "spring" as const, stiffness: 300, damping: 35 },
+  };
 
   return (
     <AnimatePresence>
@@ -90,9 +60,8 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
             style={{
               position: 'fixed',
               inset: 0,
-              background: 'rgba(0, 0, 0, 0.5)',
-              zIndex: 200,
-              backdropFilter: 'blur(4px)',
+              background: 'rgba(0, 0, 0, 0.3)',
+              zIndex: 99,
             }}
           />
 
@@ -101,299 +70,469 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
             initial={{ x: 500, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: 500, opacity: 0 }}
-            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+            transition={SPRING}
             style={{
               position: 'fixed',
               right: 0,
               top: 0,
               height: '100vh',
-              width: '420px',
-              background: bgColor,
-              borderLeft: `1px solid ${borderColor}`,
-              boxShadow: isDarkMode
-                ? '0 20px 50px rgba(0, 0, 0, 0.4)'
-                : '0 20px 50px rgba(0, 0, 0, 0.15)',
-              zIndex: 201,
+              width: 'clamp(280px, 80vw, 400px)',
+              background: COLORS.background,
+              borderLeft: `1px solid ${COLORS.border}`,
+              display: 'flex',
+              flexDirection: 'column',
+              zIndex: 100,
+              boxShadow: '0 20px 60px rgba(0, 0, 0, 0.15)',
               overflowY: 'auto',
             }}
           >
-            {/* Header with Gradient */}
-            <div style={{
-              padding: '32px 24px',
-              background: `linear-gradient(135deg, ${accentColor} 0%, #14b8a6 100%)`,
-              color: 'white',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              position: 'sticky',
-              top: 0,
-              zIndex: 10,
-            }}>
-              <div>
-                <h2 style={{
-                  fontSize: '28px',
-                  fontWeight: 'bold',
-                  margin: 0,
-                  fontFamily: '"Playfair Display", serif',
-                }}>
-                  Settings
-                </h2>
-                <p style={{
-                  fontSize: '12px',
-                  opacity: 0.9,
-                  margin: '4px 0 0 0',
-                }}>
-                  Customize your experience
-                </p>
-              </div>
-              <motion.button
-                onClick={onClose}
-                whileHover={{ scale: 1.1, rotate: 90 }}
-                whileTap={{ scale: 0.9 }}
+            {/* Header */}
+            <div
+              style={{
+                padding: '20px 24px',
+                borderBottom: `1px solid ${COLORS.border}`,
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
+              <h2
                 style={{
-                  background: 'rgba(255, 255, 255, 0.2)',
-                  border: 'none',
-                  cursor: 'pointer',
-                  color: 'white',
-                  padding: '8px',
-                  borderRadius: '8px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                  fontSize: '20px',
+                  fontWeight: '700',
+                  color: COLORS.textDark,
+                  margin: 0,
                 }}
               >
-                <X size={24} />
+                Settings
+              </h2>
+              <motion.button
+                onClick={onClose}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                style={{
+                  background: COLORS.lightBg,
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: '8px',
+                  borderRadius: '8px',
+                  color: COLORS.textDark,
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
+              >
+                <X size={20} />
               </motion.button>
             </div>
 
-            {/* Settings Content */}
-            <div style={{ padding: '24px' }}>
-              {settingsGroups.map((group, groupIdx) => {
-                const Icon = group.icon;
-                return (
-                  <motion.div
-                    key={groupIdx}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: groupIdx * 0.1 }}
-                    style={{ marginBottom: '32px' }}
+            {/* Content */}
+            <div style={{ flex: 1, padding: '24px', display: 'flex', flexDirection: 'column', gap: '28px' }}>
+              {/* Appearance Section */}
+              <section>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    marginBottom: '16px',
+                  }}
+                >
+                  <Sun size={18} style={{ color: COLORS.primary }} />
+                  <h3
+                    style={{
+                      fontSize: '14px',
+                      fontWeight: '700',
+                      color: COLORS.textDark,
+                      margin: 0,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px',
+                    }}
                   >
-                    {/* Group Header */}
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '12px',
-                      marginBottom: '16px',
-                    }}>
-                      <div style={{
-                        background: `${group.color}20`,
-                        padding: '12px',
-                        borderRadius: '12px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}>
-                        <Icon size={20} style={{ color: group.color }} />
-                      </div>
-                      <h3 style={{
-                        fontSize: '18px',
-                        fontWeight: '600',
-                        color: textColor,
-                        margin: 0,
-                      }}>
-                        {group.title}
-                      </h3>
-                    </div>
-
-                    {/* Settings */}
-                    <div style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '12px',
-                    }}>
-                      {group.settings.map((setting, settingIdx) => {
-                        const isMain = setting.isMain;
-                        const isNotificationsSetting = setting.key === 'notifications' && isMain;
-
-                        return (
-                          <motion.div
-                            key={settingIdx}
-                            whileHover={{ scale: 1.02 }}
-                            style={{
-                              background: isDarkMode
-                                ? '#1e293b'
-                                : '#f8fafc',
-                              border: `2px solid ${borderColor}`,
-                              borderRadius: '12px',
-                              padding: '16px',
-                              display: 'flex',
-                              justifyContent: 'space-between',
-                              alignItems: 'center',
-                              cursor: 'pointer',
-                              transition: 'all 0.3s ease',
-                            }}
-                            onMouseEnter={(e) => {
-                              (e.currentTarget as HTMLElement).style.borderColor = group.color;
-                              (e.currentTarget as HTMLElement).style.boxShadow = `0 0 20px ${group.color}20`;
-                            }}
-                            onMouseLeave={(e) => {
-                              (e.currentTarget as HTMLElement).style.borderColor = borderColor;
-                              (e.currentTarget as HTMLElement).style.boxShadow = 'none';
-                            }}
-                            onClick={() => {
-                              if (isNotificationsSetting) {
-                                onDarkModeToggle();
-                              } else {
-                                toggleSetting(setting.key as keyof typeof settings);
-                              }
-                            }}
-                          >
-                            <label style={{
-                              fontSize: '14px',
-                              fontWeight: '500',
-                              color: textColor,
-                              cursor: 'pointer',
-                            }}>
-                              {setting.label}
-                            </label>
-                            <ToggleSwitch
-                              value={isNotificationsSetting ? isDarkMode : settings[setting.key as keyof typeof settings]}
-                              isDarkMode={isDarkMode}
-                              color={group.color}
-                            />
-                          </motion.div>
-                        );
-                      })}
-                    </div>
-                  </motion.div>
-                );
-              })}
-
-              {/* Week Start Preference */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-                style={{ marginTop: '32px' }}
-              >
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '12px',
-                  marginBottom: '16px',
-                }}>
-                  <div style={{
-                    background: '#06b6d420',
-                    padding: '12px',
-                    borderRadius: '12px',
-                  }}>
-                    <Clock size={20} style={{ color: '#06b6d4' }} />
-                  </div>
-                  <h3 style={{
-                    fontSize: '18px',
-                    fontWeight: '600',
-                    color: textColor,
-                    margin: 0,
-                  }}>
-                    Calendar
+                    Appearance
                   </h3>
                 </div>
 
-                <div style={{
-                  background: isDarkMode ? '#1e293b' : '#f8fafc',
-                  border: `2px solid ${borderColor}`,
-                  borderRadius: '12px',
-                  padding: '16px',
-                }}>
-                  <label style={{
-                    display: 'block',
-                    fontSize: '14px',
-                    fontWeight: '600',
-                    marginBottom: '12px',
-                    color: textColor,
-                  }}>
+                <div
+                  style={{
+                    background: COLORS.lightBg,
+                    borderRadius: '12px',
+                    padding: '16px',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                  }}
+                >
+                  <div>
+                    <p
+                      style={{
+                        fontSize: '13px',
+                        fontWeight: '600',
+                        color: COLORS.textDark,
+                        margin: 0,
+                      }}
+                    >
+                      Dark Mode
+                    </p>
+                    <p
+                      style={{
+                        fontSize: '12px',
+                        color: COLORS.textLight,
+                        margin: '4px 0 0 0',
+                      }}
+                    >
+                      Coming soon
+                    </p>
+                  </div>
+                  <motion.button
+                    onClick={onDarkModeToggle}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    style={{
+                      width: '50px',
+                      height: '28px',
+                      borderRadius: '14px',
+                      border: 'none',
+                      background: isDarkMode ? COLORS.accent : COLORS.border,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      padding: '2px',
+                      position: 'relative',
+                    }}
+                  >
+                    <motion.div
+                      animate={{ x: isDarkMode ? 22 : 0 }}
+                      style={{
+                        width: '24px',
+                        height: '24px',
+                        borderRadius: '12px',
+                        background: 'white',
+                        position: 'absolute',
+                      }}
+                    />
+                  </motion.button>
+                </div>
+              </section>
+
+              {/* Notifications Section */}
+              <section>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    marginBottom: '16px',
+                  }}
+                >
+                  <Bell size={18} style={{ color: COLORS.primary }} />
+                  <h3
+                    style={{
+                      fontSize: '14px',
+                      fontWeight: '700',
+                      color: COLORS.textDark,
+                      margin: 0,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px',
+                    }}
+                  >
+                    Notifications
+                  </h3>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {[
+                    {
+                      key: 'pushNotifications',
+                      label: 'Push Notifications',
+                      desc: 'Get desktop alerts',
+                    },
+                    {
+                      key: 'soundNotifications',
+                      label: 'Sound Alerts',
+                      desc: 'Play notification sounds',
+                    },
+                  ].map((item) => (
+                    <motion.div
+                      key={item.key}
+                      style={{
+                        background: COLORS.lightBg,
+                        borderRadius: '12px',
+                        padding: '12px 16px',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <div>
+                        <p
+                          style={{
+                            fontSize: '13px',
+                            fontWeight: '600',
+                            color: COLORS.textDark,
+                            margin: 0,
+                          }}
+                        >
+                          {item.label}
+                        </p>
+                        <p
+                          style={{
+                            fontSize: '12px',
+                            color: COLORS.textLight,
+                            margin: '2px 0 0 0',
+                          }}
+                        >
+                          {item.desc}
+                        </p>
+                      </div>
+                      <motion.button
+                        onClick={() =>
+                          toggleSetting(item.key as keyof typeof settings)
+                        }
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        style={{
+                          width: '50px',
+                          height: '28px',
+                          borderRadius: '14px',
+                          border: 'none',
+                          background: settings[
+                            item.key as keyof typeof settings
+                          ]
+                            ? COLORS.accent
+                            : COLORS.border,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          padding: '2px',
+                          position: 'relative',
+                        }}
+                      >
+                        <motion.div
+                          animate={{
+                            x: settings[item.key as keyof typeof settings]
+                              ? 22
+                              : 0,
+                          }}
+                          style={{
+                            width: '24px',
+                            height: '24px',
+                            borderRadius: '12px',
+                            background: 'white',
+                            position: 'absolute',
+                          }}
+                        />
+                      </motion.button>
+                    </motion.div>
+                  ))}
+                </div>
+              </section>
+
+              {/* Communication Section */}
+              <section>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    marginBottom: '16px',
+                  }}
+                >
+                  <Mail size={18} style={{ color: COLORS.primary }} />
+                  <h3
+                    style={{
+                      fontSize: '14px',
+                      fontWeight: '700',
+                      color: COLORS.textDark,
+                      margin: 0,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px',
+                    }}
+                  >
+                    Communication
+                  </h3>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {[
+                    {
+                      key: 'emailReminders',
+                      label: 'Email Reminders',
+                      desc: 'Task reminders via email',
+                    },
+                    {
+                      key: 'smsReminders',
+                      label: 'SMS Reminders',
+                      desc: 'Task reminders via text',
+                    },
+                  ].map((item) => (
+                    <motion.div
+                      key={item.key}
+                      style={{
+                        background: COLORS.lightBg,
+                        borderRadius: '12px',
+                        padding: '12px 16px',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <div>
+                        <p
+                          style={{
+                            fontSize: '13px',
+                            fontWeight: '600',
+                            color: COLORS.textDark,
+                            margin: 0,
+                          }}
+                        >
+                          {item.label}
+                        </p>
+                        <p
+                          style={{
+                            fontSize: '12px',
+                            color: COLORS.textLight,
+                            margin: '2px 0 0 0',
+                          }}
+                        >
+                          {item.desc}
+                        </p>
+                      </div>
+                      <motion.button
+                        onClick={() =>
+                          toggleSetting(item.key as keyof typeof settings)
+                        }
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        style={{
+                          width: '50px',
+                          height: '28px',
+                          borderRadius: '14px',
+                          border: 'none',
+                          background: settings[
+                            item.key as keyof typeof settings
+                          ]
+                            ? COLORS.accent
+                            : COLORS.border,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          padding: '2px',
+                          position: 'relative',
+                        }}
+                      >
+                        <motion.div
+                          animate={{
+                            x: settings[item.key as keyof typeof settings]
+                              ? 22
+                              : 0,
+                          }}
+                          style={{
+                            width: '24px',
+                            height: '24px',
+                            borderRadius: '12px',
+                            background: 'white',
+                            position: 'absolute',
+                          }}
+                        />
+                      </motion.button>
+                    </motion.div>
+                  ))}
+                </div>
+              </section>
+
+              {/* Preferences Section */}
+              <section>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    marginBottom: '16px',
+                  }}
+                >
+                  <Settings2 size={18} style={{ color: COLORS.primary }} />
+                  <h3
+                    style={{
+                      fontSize: '14px',
+                      fontWeight: '700',
+                      color: COLORS.textDark,
+                      margin: 0,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px',
+                    }}
+                  >
+                    Preferences
+                  </h3>
+                </div>
+
+                <div
+                  style={{
+                    background: COLORS.lightBg,
+                    borderRadius: '12px',
+                    padding: '16px',
+                  }}
+                >
+                  <label
+                    style={{
+                      display: 'block',
+                      fontSize: '13px',
+                      fontWeight: '600',
+                      color: COLORS.textDark,
+                      marginBottom: '8px',
+                    }}
+                  >
                     Week Starts On
                   </label>
                   <select
                     value={settings.weekStartDay}
-                    onChange={(e) => setSettings({ ...settings, weekStartDay: e.target.value })}
+                    onChange={(e) =>
+                      setSettings({
+                        ...settings,
+                        weekStartDay: e.target.value,
+                      })
+                    }
                     style={{
                       width: '100%',
-                      padding: '12px',
-                      border: `2px solid ${borderColor}`,
+                      padding: '10px 12px',
+                      border: `1px solid ${COLORS.border}`,
                       borderRadius: '8px',
-                      background: inputBg,
-                      color: textColor,
-                      fontSize: '14px',
+                      fontSize: '13px',
                       cursor: 'pointer',
-                      fontWeight: '500',
-                      transition: 'all 0.3s ease',
-                    }}
-                    onFocus={(e) => {
-                      (e.currentTarget as HTMLElement).style.borderColor = accentColor;
-                      (e.currentTarget as HTMLElement).style.boxShadow = `0 0 20px ${accentColor}30`;
-                    }}
-                    onBlur={(e) => {
-                      (e.currentTarget as HTMLElement).style.borderColor = borderColor;
-                      (e.currentTarget as HTMLElement).style.boxShadow = 'none';
+                      background: COLORS.background,
+                      color: COLORS.textDark,
+                      boxSizing: 'border-box',
                     }}
                   >
-                    <option>Monday</option>
                     <option>Sunday</option>
+                    <option>Monday</option>
                     <option>Saturday</option>
                   </select>
                 </div>
-              </motion.div>
+              </section>
+            </div>
 
-              {/* Footer Spacer */}
-              <div style={{ height: '32px' }} />
+            {/* Footer */}
+            <div
+              style={{
+                padding: '20px 24px',
+                borderTop: `1px solid ${COLORS.border}`,
+                textAlign: 'center',
+              }}
+            >
+              <p
+                style={{
+                  fontSize: '12px',
+                  color: COLORS.textLight,
+                  margin: 0,
+                }}
+              >
+                Version 1.0.0
+              </p>
             </div>
           </motion.div>
         </>
       )}
     </AnimatePresence>
-  );
-};
-
-// Beautiful Toggle Switch Component
-interface ToggleSwitchProps {
-  value: boolean;
-  isDarkMode: boolean;
-  color: string;
-}
-
-const ToggleSwitch: React.FC<ToggleSwitchProps> = ({ value, isDarkMode, color }) => {
-  return (
-    <motion.div
-      animate={{
-        background: value ? color : (isDarkMode ? '#475569' : '#cbd5e1'),
-      }}
-      style={{
-        width: '56px',
-        height: '32px',
-        borderRadius: '16px',
-        background: value ? color : '#cbd5e1',
-        position: 'relative',
-        cursor: 'pointer',
-        boxShadow: value ? `0 0 20px ${color}40` : 'none',
-      }}
-    >
-      <motion.div
-        animate={{
-          x: value ? 24 : 2,
-        }}
-        transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-        style={{
-          width: '28px',
-          height: '28px',
-          borderRadius: '14px',
-          background: 'white',
-          position: 'absolute',
-          top: '2px',
-          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
-        }}
-      />
-    </motion.div>
   );
 };
 
