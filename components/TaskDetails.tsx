@@ -586,7 +586,12 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
                 onChange={(e) =>
                   setEditData({
                     ...editData,
-                    contractor: { ...editData.contractor, name: e.target.value },
+                    contractor: {
+  name: e.target.value,
+  phone: editData.contractor?.phone || "",
+  email: editData.contractor?.email || "",
+  rating: editData.contractor?.rating || 0
+},
                   })
                 }
                 style={{
@@ -612,7 +617,12 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
                 onChange={(e) =>
                   setEditData({
                     ...editData,
-                    contractor: { ...editData.contractor, phone: e.target.value },
+                    contractor: {
+  name: editData.contractor?.name || "",
+  phone: e.target.value,
+  email: editData.contractor?.email || "",
+  rating: editData.contractor?.rating || 0
+},
                   })
                 }
                 style={{
@@ -638,7 +648,12 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
                 onChange={(e) =>
                   setEditData({
                     ...editData,
-                    contractor: { ...editData.contractor, email: e.target.value },
+                    contractor: {
+  name: editData.contractor?.name || "",
+  phone: editData.contractor?.phone || "",
+  email: e.target.value,
+  rating: editData.contractor?.rating || 0
+},
                   })
                 }
                 style={{
@@ -667,7 +682,12 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
                 onChange={(e) =>
                   setEditData({
                     ...editData,
-                    contractor: { ...editData.contractor, rating: parseFloat(e.target.value) },
+                   contractor: {
+  name: editData.contractor?.name || "",
+  phone: editData.contractor?.phone || "",
+  email: editData.contractor?.email || "",
+  rating: parseFloat(e.target.value)
+},
                   })
                 }
                 style={{
@@ -715,9 +735,10 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
                   setEditData({
                     ...editData,
                     warranty: {
-                      ...editData.warranty,
-                      hasWarranty: e.target.checked,
-                    },
+  hasWarranty: e.target.checked,
+  expiryDate: editData.warranty?.expiryDate || "",
+  provider: editData.warranty?.provider || "",
+},
                   })
                 }
                 style={{ cursor: 'pointer', width: '18px', height: '18px' }}
@@ -739,11 +760,15 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
                   type="date"
                   value={editData.warranty?.expiryDate || ''}
                   onChange={(e) =>
-                    setEditData({
-                      ...editData,
-                      warranty: { ...editData.warranty, expiryDate: e.target.value },
-                    })
-                  }
+  setEditData({
+    ...editData,
+    warranty: {
+      hasWarranty: editData.warranty?.hasWarranty || false,
+      expiryDate: e.target.value,
+      provider: editData.warranty?.provider || "",
+    },
+  })
+}
                   style={{
                     padding: '10px 12px',
                     border: `2px solid ${COLORS.border}`,
@@ -766,11 +791,15 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
                   placeholder="Provider"
                   value={editData.warranty?.provider || ''}
                   onChange={(e) =>
-                    setEditData({
-                      ...editData,
-                      warranty: { ...editData.warranty, provider: e.target.value },
-                    })
-                  }
+  setEditData({
+    ...editData,
+    warranty: {
+      hasWarranty: editData.warranty?.hasWarranty || false,
+      expiryDate: editData.warranty?.expiryDate || "",
+      provider: e.target.value,
+    },
+  })
+}
                   style={{
                     padding: '10px 12px',
                     border: `2px solid ${COLORS.border}`,
