@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Edit2, Check, Phone, Mail, Calendar, Save, AlertCircle } from 'lucide-react';
+import { X, Edit2, Check, Phone, Mail, Calendar, Save, AlertCircle, Upload, Trash2 } from 'lucide-react';
 import { Task } from './HomeMaintenanceLog';
 
 interface TaskDetailsProps {
@@ -34,7 +34,7 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
   isDarkMode,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [editData, setEditData] = useState(task);
+  const [editData, setEditData] = useState<Task>(task);
 
   const calculateDaysUntilDue = (dueDate: string): number => {
     const today = new Date();
@@ -98,10 +98,10 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
       transition={SPRING}
       style={{
         background: COLORS.background,
-        borderRadius: '20px',
-        padding: 'clamp(28px, 5vw, 36px)',
-        boxShadow: '0 20px 40px rgba(0, 0, 0, 0.08)',
-        border: `1px solid ${COLORS.border}`,
+        borderRadius: '24px',
+        padding: 'clamp(28px, 5vw, 40px)',
+        boxShadow: '0 20px 60px rgba(0, 0, 0, 0.12)',
+        border: `2px solid ${COLORS.accent}`,
         maxHeight: '90vh',
         overflowY: 'auto',
       }}
@@ -112,16 +112,16 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'flex-start',
-          marginBottom: '28px',
-          paddingBottom: '20px',
-          borderBottom: `1px solid ${COLORS.border}`,
+          marginBottom: '32px',
+          paddingBottom: '24px',
+          borderBottom: `2px solid ${COLORS.border}`,
         }}
       >
         <div>
           <h2
             style={{
-              fontSize: 'clamp(20px, 4vw, 28px)',
-              fontWeight: '700',
+              fontSize: 'clamp(20px, 4vw, 32px)',
+              fontWeight: '800',
               color: COLORS.textDark,
               margin: '0 0 8px 0',
               letterSpacing: '-0.5px',
@@ -144,24 +144,25 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
           {!isEditing && (
             <motion.button
               onClick={() => setIsEditing(true)}
-              whileHover={{ scale: 1.05 }}
+              whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
               style={{
-                background: COLORS.lightBg,
-                color: COLORS.primary,
-                border: `1px solid ${COLORS.border}`,
-                borderRadius: '8px',
-                padding: '8px 12px',
+                background: `linear-gradient(135deg, ${COLORS.primary} 0%, ${COLORS.accent} 100%)`,
+                color: 'white',
+                border: 'none',
+                borderRadius: '10px',
+                padding: '10px 14px',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '6px',
-                fontSize: '12px',
-                fontWeight: '600',
+                fontSize: '13px',
+                fontWeight: '700',
+                boxShadow: `0 4px 12px ${COLORS.primary}20`,
               }}
             >
-              <Edit2 size={14} />
-              Edit
+              <Edit2 size={16} />
+              Edit All
             </motion.button>
           )}
           <motion.button
@@ -185,15 +186,345 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
       </div>
 
       {isEditing ? (
-        // Edit Mode
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        // EDIT MODE - Full form to edit everything
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
+          {/* Task Name */}
+          <div>
+            <label
+              style={{
+                display: 'block',
+                fontSize: '12px',
+                fontWeight: '700',
+                marginBottom: '8px',
+                color: COLORS.textDark,
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+              }}
+            >
+              Task Name
+            </label>
+            <input
+              type="text"
+              value={editData.name}
+              onChange={(e) => setEditData({ ...editData, name: e.target.value })}
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                border: `2px solid ${COLORS.border}`,
+                borderRadius: '12px',
+                fontSize: '14px',
+                boxSizing: 'border-box',
+                background: COLORS.lightBg,
+                color: COLORS.textDark,
+                transition: 'all 0.3s ease',
+              }}
+              onFocus={(e) => {
+                (e.currentTarget as HTMLElement).style.borderColor = COLORS.primary;
+                (e.currentTarget as HTMLElement).style.boxShadow = `0 0 12px ${COLORS.primary}20`;
+              }}
+              onBlur={(e) => {
+                (e.currentTarget as HTMLElement).style.borderColor = COLORS.border;
+                (e.currentTarget as HTMLElement).style.boxShadow = 'none';
+              }}
+            />
+          </div>
+
+          {/* Category & Room */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+            <div>
+              <label
+                style={{
+                  display: 'block',
+                  fontSize: '12px',
+                  fontWeight: '700',
+                  marginBottom: '8px',
+                  color: COLORS.textDark,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                }}
+              >
+                Category
+              </label>
+              <select
+                value={editData.category}
+                onChange={(e) => setEditData({ ...editData, category: e.target.value })}
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  border: `2px solid ${COLORS.border}`,
+                  borderRadius: '12px',
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                  boxSizing: 'border-box',
+                  background: COLORS.lightBg,
+                  color: COLORS.textDark,
+                }}
+                onFocus={(e) => {
+                  (e.currentTarget as HTMLElement).style.borderColor = COLORS.primary;
+                }}
+                onBlur={(e) => {
+                  (e.currentTarget as HTMLElement).style.borderColor = COLORS.border;
+                }}
+              >
+                {categories.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label
+                style={{
+                  display: 'block',
+                  fontSize: '12px',
+                  fontWeight: '700',
+                  marginBottom: '8px',
+                  color: COLORS.textDark,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                }}
+              >
+                Room
+              </label>
+              <select
+                value={editData.room}
+                onChange={(e) => setEditData({ ...editData, room: e.target.value })}
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  border: `2px solid ${COLORS.border}`,
+                  borderRadius: '12px',
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                  boxSizing: 'border-box',
+                  background: COLORS.lightBg,
+                  color: COLORS.textDark,
+                }}
+                onFocus={(e) => {
+                  (e.currentTarget as HTMLElement).style.borderColor = COLORS.primary;
+                }}
+                onBlur={(e) => {
+                  (e.currentTarget as HTMLElement).style.borderColor = COLORS.border;
+                }}
+              >
+                {rooms.map((room) => (
+                  <option key={room} value={room}>
+                    {room}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Dates */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+            <div>
+              <label
+                style={{
+                  display: 'block',
+                  fontSize: '12px',
+                  fontWeight: '700',
+                  marginBottom: '8px',
+                  color: COLORS.textDark,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                }}
+              >
+                Last Completed
+              </label>
+              <input
+                type="date"
+                value={editData.lastCompleted}
+                onChange={(e) => setEditData({ ...editData, lastCompleted: e.target.value })}
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  border: `2px solid ${COLORS.border}`,
+                  borderRadius: '12px',
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                  boxSizing: 'border-box',
+                  background: COLORS.lightBg,
+                  color: COLORS.textDark,
+                }}
+                onFocus={(e) => {
+                  (e.currentTarget as HTMLElement).style.borderColor = COLORS.primary;
+                }}
+                onBlur={(e) => {
+                  (e.currentTarget as HTMLElement).style.borderColor = COLORS.border;
+                }}
+              />
+            </div>
+
+            <div>
+              <label
+                style={{
+                  display: 'block',
+                  fontSize: '12px',
+                  fontWeight: '700',
+                  marginBottom: '8px',
+                  color: COLORS.textDark,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                }}
+              >
+                Due Date
+              </label>
+              <input
+                type="date"
+                value={editData.dueDate}
+                onChange={(e) => setEditData({ ...editData, dueDate: e.target.value })}
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  border: `2px solid ${COLORS.border}`,
+                  borderRadius: '12px',
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                  boxSizing: 'border-box',
+                  background: COLORS.lightBg,
+                  color: COLORS.textDark,
+                }}
+                onFocus={(e) => {
+                  (e.currentTarget as HTMLElement).style.borderColor = COLORS.primary;
+                }}
+                onBlur={(e) => {
+                  (e.currentTarget as HTMLElement).style.borderColor = COLORS.border;
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Priority & Frequency */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+            <div>
+              <label
+                style={{
+                  display: 'block',
+                  fontSize: '12px',
+                  fontWeight: '700',
+                  marginBottom: '8px',
+                  color: COLORS.textDark,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                }}
+              >
+                Priority
+              </label>
+              <select
+                value={editData.priority}
+                onChange={(e) => setEditData({ ...editData, priority: e.target.value as any })}
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  border: `2px solid ${COLORS.border}`,
+                  borderRadius: '12px',
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                  boxSizing: 'border-box',
+                  background: COLORS.lightBg,
+                  color: COLORS.textDark,
+                }}
+                onFocus={(e) => {
+                  (e.currentTarget as HTMLElement).style.borderColor = COLORS.primary;
+                }}
+                onBlur={(e) => {
+                  (e.currentTarget as HTMLElement).style.borderColor = COLORS.border;
+                }}
+              >
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+                <option value="critical">Critical</option>
+              </select>
+            </div>
+
+            <div>
+              <label
+                style={{
+                  display: 'block',
+                  fontSize: '12px',
+                  fontWeight: '700',
+                  marginBottom: '8px',
+                  color: COLORS.textDark,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                }}
+              >
+                Frequency (days)
+              </label>
+              <input
+                type="number"
+                value={editData.frequency}
+                onChange={(e) => setEditData({ ...editData, frequency: e.target.value })}
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  border: `2px solid ${COLORS.border}`,
+                  borderRadius: '12px',
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                  boxSizing: 'border-box',
+                  background: COLORS.lightBg,
+                  color: COLORS.textDark,
+                }}
+                onFocus={(e) => {
+                  (e.currentTarget as HTMLElement).style.borderColor = COLORS.primary;
+                }}
+                onBlur={(e) => {
+                  (e.currentTarget as HTMLElement).style.borderColor = COLORS.border;
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Cost */}
+          <div>
+            <label
+              style={{
+                display: 'block',
+                fontSize: '12px',
+                fontWeight: '700',
+                marginBottom: '8px',
+                color: COLORS.textDark,
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+              }}
+            >
+              Cost ($)
+            </label>
+            <input
+              type="number"
+              value={editData.cost}
+              onChange={(e) => setEditData({ ...editData, cost: parseFloat(e.target.value) })}
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                border: `2px solid ${COLORS.border}`,
+                borderRadius: '12px',
+                fontSize: '14px',
+                boxSizing: 'border-box',
+                background: COLORS.lightBg,
+                color: COLORS.textDark,
+              }}
+              onFocus={(e) => {
+                (e.currentTarget as HTMLElement).style.borderColor = COLORS.primary;
+              }}
+              onBlur={(e) => {
+                (e.currentTarget as HTMLElement).style.borderColor = COLORS.border;
+              }}
+            />
+          </div>
+
           {/* Notes */}
           <div>
             <label
               style={{
                 display: 'block',
-                fontSize: '13px',
-                fontWeight: '600',
+                fontSize: '12px',
+                fontWeight: '700',
                 marginBottom: '8px',
                 color: COLORS.textDark,
                 textTransform: 'uppercase',
@@ -208,95 +539,256 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
               style={{
                 width: '100%',
                 padding: '12px 16px',
-                border: `1px solid ${COLORS.border}`,
+                border: `2px solid ${COLORS.border}`,
                 borderRadius: '12px',
                 fontSize: '14px',
                 minHeight: '100px',
                 fontFamily: '"Inter", sans-serif',
                 boxSizing: 'border-box',
-                background: COLORS.background,
+                background: COLORS.lightBg,
                 color: COLORS.textDark,
+                resize: 'vertical',
+              }}
+              onFocus={(e) => {
+                (e.currentTarget as HTMLElement).style.borderColor = COLORS.primary;
+              }}
+              onBlur={(e) => {
+                (e.currentTarget as HTMLElement).style.borderColor = COLORS.border;
               }}
             />
           </div>
 
-          {/* Cost & Priority */}
+          {/* Contractor Section */}
           <div
             style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: '16px',
+              background: COLORS.lightBg,
+              padding: '20px',
+              borderRadius: '16px',
+              border: `2px solid ${COLORS.border}`,
             }}
           >
-            <div>
-              <label
-                style={{
-                  display: 'block',
-                  fontSize: '13px',
-                  fontWeight: '600',
-                  marginBottom: '8px',
-                  color: COLORS.textDark,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px',
-                }}
-              >
-                Cost
-              </label>
+            <h4
+              style={{
+                fontSize: '14px',
+                fontWeight: '700',
+                color: COLORS.textDark,
+                marginBottom: '16px',
+                margin: '0 0 16px 0',
+              }}
+            >
+              Contractor Information
+            </h4>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
               <input
-                type="number"
-                value={editData.cost}
+                type="text"
+                placeholder="Name"
+                value={editData.contractor?.name || ''}
                 onChange={(e) =>
-                  setEditData({ ...editData, cost: parseFloat(e.target.value) })
+                  setEditData({
+                    ...editData,
+                    contractor: { ...editData.contractor, name: e.target.value },
+                  })
                 }
                 style={{
-                  width: '100%',
-                  padding: '12px 16px',
-                  border: `1px solid ${COLORS.border}`,
-                  borderRadius: '12px',
-                  fontSize: '14px',
+                  padding: '10px 12px',
+                  border: `2px solid ${COLORS.border}`,
+                  borderRadius: '8px',
+                  fontSize: '13px',
                   boxSizing: 'border-box',
                   background: COLORS.background,
                   color: COLORS.textDark,
+                }}
+                onFocus={(e) => {
+                  (e.currentTarget as HTMLElement).style.borderColor = COLORS.primary;
+                }}
+                onBlur={(e) => {
+                  (e.currentTarget as HTMLElement).style.borderColor = COLORS.border;
+                }}
+              />
+              <input
+                type="tel"
+                placeholder="Phone"
+                value={editData.contractor?.phone || ''}
+                onChange={(e) =>
+                  setEditData({
+                    ...editData,
+                    contractor: { ...editData.contractor, phone: e.target.value },
+                  })
+                }
+                style={{
+                  padding: '10px 12px',
+                  border: `2px solid ${COLORS.border}`,
+                  borderRadius: '8px',
+                  fontSize: '13px',
+                  boxSizing: 'border-box',
+                  background: COLORS.background,
+                  color: COLORS.textDark,
+                }}
+                onFocus={(e) => {
+                  (e.currentTarget as HTMLElement).style.borderColor = COLORS.primary;
+                }}
+                onBlur={(e) => {
+                  (e.currentTarget as HTMLElement).style.borderColor = COLORS.border;
+                }}
+              />
+              <input
+                type="email"
+                placeholder="Email"
+                value={editData.contractor?.email || ''}
+                onChange={(e) =>
+                  setEditData({
+                    ...editData,
+                    contractor: { ...editData.contractor, email: e.target.value },
+                  })
+                }
+                style={{
+                  padding: '10px 12px',
+                  border: `2px solid ${COLORS.border}`,
+                  borderRadius: '8px',
+                  fontSize: '13px',
+                  gridColumn: '1 / -1',
+                  boxSizing: 'border-box',
+                  background: COLORS.background,
+                  color: COLORS.textDark,
+                }}
+                onFocus={(e) => {
+                  (e.currentTarget as HTMLElement).style.borderColor = COLORS.primary;
+                }}
+                onBlur={(e) => {
+                  (e.currentTarget as HTMLElement).style.borderColor = COLORS.border;
+                }}
+              />
+              <input
+                type="number"
+                placeholder="Rating (1-5)"
+                min="1"
+                max="5"
+                value={editData.contractor?.rating || 5}
+                onChange={(e) =>
+                  setEditData({
+                    ...editData,
+                    contractor: { ...editData.contractor, rating: parseFloat(e.target.value) },
+                  })
+                }
+                style={{
+                  padding: '10px 12px',
+                  border: `2px solid ${COLORS.border}`,
+                  borderRadius: '8px',
+                  fontSize: '13px',
+                  gridColumn: '1 / -1',
+                  boxSizing: 'border-box',
+                  background: COLORS.background,
+                  color: COLORS.textDark,
+                }}
+                onFocus={(e) => {
+                  (e.currentTarget as HTMLElement).style.borderColor = COLORS.primary;
+                }}
+                onBlur={(e) => {
+                  (e.currentTarget as HTMLElement).style.borderColor = COLORS.border;
                 }}
               />
             </div>
-            <div>
-              <label
-                style={{
-                  display: 'block',
-                  fontSize: '13px',
-                  fontWeight: '600',
-                  marginBottom: '8px',
-                  color: COLORS.textDark,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px',
-                }}
-              >
-                Priority
-              </label>
-              <select
-                value={editData.priority}
+          </div>
+
+          {/* Warranty Section */}
+          <div
+            style={{
+              background: COLORS.lightBg,
+              padding: '20px',
+              borderRadius: '16px',
+              border: `2px solid ${COLORS.border}`,
+            }}
+          >
+            <label
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                marginBottom: '16px',
+                cursor: 'pointer',
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={editData.warranty?.hasWarranty || false}
                 onChange={(e) =>
-                  setEditData({ ...editData, priority: e.target.value as any })
+                  setEditData({
+                    ...editData,
+                    warranty: {
+                      ...editData.warranty,
+                      hasWarranty: e.target.checked,
+                    },
+                  })
                 }
+                style={{ cursor: 'pointer', width: '18px', height: '18px' }}
+              />
+              <span
                 style={{
-                  width: '100%',
-                  padding: '12px 16px',
-                  border: `1px solid ${COLORS.border}`,
-                  borderRadius: '12px',
                   fontSize: '14px',
-                  cursor: 'pointer',
-                  boxSizing: 'border-box',
-                  background: COLORS.background,
+                  fontWeight: '700',
                   color: COLORS.textDark,
                 }}
               >
-                <option value="low">Low</option>
-                <option value="medium">Medium</option>
-                <option value="high">High</option>
-                <option value="critical">Critical</option>
-              </select>
-            </div>
+                Has Warranty
+              </span>
+            </label>
+
+            {editData.warranty?.hasWarranty && (
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <input
+                  type="date"
+                  value={editData.warranty?.expiryDate || ''}
+                  onChange={(e) =>
+                    setEditData({
+                      ...editData,
+                      warranty: { ...editData.warranty, expiryDate: e.target.value },
+                    })
+                  }
+                  style={{
+                    padding: '10px 12px',
+                    border: `2px solid ${COLORS.border}`,
+                    borderRadius: '8px',
+                    fontSize: '13px',
+                    cursor: 'pointer',
+                    boxSizing: 'border-box',
+                    background: COLORS.background,
+                    color: COLORS.textDark,
+                  }}
+                  onFocus={(e) => {
+                    (e.currentTarget as HTMLElement).style.borderColor = COLORS.primary;
+                  }}
+                  onBlur={(e) => {
+                    (e.currentTarget as HTMLElement).style.borderColor = COLORS.border;
+                  }}
+                />
+                <input
+                  type="text"
+                  placeholder="Provider"
+                  value={editData.warranty?.provider || ''}
+                  onChange={(e) =>
+                    setEditData({
+                      ...editData,
+                      warranty: { ...editData.warranty, provider: e.target.value },
+                    })
+                  }
+                  style={{
+                    padding: '10px 12px',
+                    border: `2px solid ${COLORS.border}`,
+                    borderRadius: '8px',
+                    fontSize: '13px',
+                    boxSizing: 'border-box',
+                    background: COLORS.background,
+                    color: COLORS.textDark,
+                  }}
+                  onFocus={(e) => {
+                    (e.currentTarget as HTMLElement).style.borderColor = COLORS.primary;
+                  }}
+                  onBlur={(e) => {
+                    (e.currentTarget as HTMLElement).style.borderColor = COLORS.border;
+                  }}
+                />
+              </div>
+            )}
           </div>
 
           {/* Photo Upload */}
@@ -304,25 +796,34 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
             <label
               style={{
                 display: 'block',
-                fontSize: '13px',
-                fontWeight: '600',
+                fontSize: '12px',
+                fontWeight: '700',
                 marginBottom: '8px',
                 color: COLORS.textDark,
                 textTransform: 'uppercase',
                 letterSpacing: '0.5px',
               }}
             >
-              Add Photos
+              Photos
             </label>
             <div
               style={{
                 position: 'relative',
                 border: `2px dashed ${COLORS.border}`,
                 borderRadius: '12px',
-                padding: '20px',
+                padding: '24px',
                 textAlign: 'center',
                 cursor: 'pointer',
                 background: COLORS.lightBg,
+                transition: 'all 0.3s ease',
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLElement).style.borderColor = COLORS.primary;
+                (e.currentTarget as HTMLElement).style.background = `${COLORS.primary}05`;
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLElement).style.borderColor = COLORS.border;
+                (e.currentTarget as HTMLElement).style.background = COLORS.lightBg;
               }}
             >
               <input
@@ -337,75 +838,72 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
                   cursor: 'pointer',
                 }}
               />
+              <Upload size={24} style={{ color: COLORS.primary, marginBottom: '8px' }} />
               <p
                 style={{
-                  fontSize: '13px',
+                  fontSize: '14px',
                   color: COLORS.textDark,
-                  margin: 0,
+                  margin: '8px 0 0 0',
+                  fontWeight: '600',
                 }}
               >
-                Click to add photos
+                Click to upload photos
               </p>
             </div>
+
+            {editData.photos.length > 0 && (
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))',
+                  gap: '12px',
+                  marginTop: '16px',
+                }}
+              >
+                {editData.photos.map((photo, idx) => (
+                  <div key={idx} style={{ position: 'relative' }}>
+                    <img
+                      src={photo}
+                      alt={`upload-${idx}`}
+                      style={{
+                        width: '100%',
+                        height: '80px',
+                        objectFit: 'cover',
+                        borderRadius: '8px',
+                      }}
+                    />
+                    <motion.button
+                      type="button"
+                      onClick={() => removePhoto(idx)}
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      style={{
+                        position: 'absolute',
+                        top: '4px',
+                        right: '4px',
+                        background: '#ef4444',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '6px',
+                        width: '24px',
+                        height: '24px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: 0,
+                      }}
+                    >
+                      <Trash2 size={12} />
+                    </motion.button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
-          {/* Photos */}
-          {editData.photos.length > 0 && (
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))',
-                gap: '12px',
-              }}
-            >
-              {editData.photos.map((photo, idx) => (
-                <div key={idx} style={{ position: 'relative' }}>
-                  <img
-                    src={photo}
-                    alt={`photo-${idx}`}
-                    style={{
-                      width: '100%',
-                      height: '80px',
-                      objectFit: 'cover',
-                      borderRadius: '8px',
-                    }}
-                  />
-                  <motion.button
-                    onClick={() => removePhoto(idx)}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    style={{
-                      position: 'absolute',
-                      top: '4px',
-                      right: '4px',
-                      background: '#ef4444',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '6px',
-                      width: '24px',
-                      height: '24px',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      padding: 0,
-                    }}
-                  >
-                    <X size={12} />
-                  </motion.button>
-                </div>
-              ))}
-            </div>
-          )}
-
           {/* Save/Cancel Buttons */}
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: '12px',
-            }}
-          >
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '16px' }}>
             <motion.button
               onClick={handleSaveEdit}
               whileHover={{ scale: 1.02 }}
@@ -413,7 +911,7 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
               style={{
                 background: `linear-gradient(135deg, ${COLORS.primary} 0%, ${COLORS.accent} 100%)`,
                 color: 'white',
-                padding: '12px',
+                padding: '14px',
                 borderRadius: '12px',
                 border: 'none',
                 fontWeight: '700',
@@ -422,22 +920,26 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '6px',
+                gap: '8px',
+                boxShadow: `0 4px 12px ${COLORS.primary}20`,
               }}
             >
               <Save size={16} />
               Save Changes
             </motion.button>
             <motion.button
-              onClick={() => setIsEditing(false)}
+              onClick={() => {
+                setEditData(task);
+                setIsEditing(false);
+              }}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               style={{
                 background: COLORS.lightBg,
                 color: COLORS.textDark,
-                padding: '12px',
+                padding: '14px',
                 borderRadius: '12px',
-                border: `1px solid ${COLORS.border}`,
+                border: `2px solid ${COLORS.border}`,
                 fontWeight: '700',
                 cursor: 'pointer',
                 fontSize: '14px',
@@ -448,44 +950,39 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
           </div>
         </div>
       ) : (
-        // View Mode
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
+        // VIEW MODE
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
           {/* Status Badges */}
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: '16px',
-            }}
-          >
-            <div
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+            <motion.div
+              whileHover={{ scale: 1.02 }}
               style={{
                 background: isOverdue
                   ? '#fee2e2'
                   : isDueSoon
                   ? '#fef3c7'
                   : '#d1fae5',
-                padding: '16px',
-                borderRadius: '12px',
-                border: `1px solid ${COLORS.border}`,
+                padding: '20px',
+                borderRadius: '16px',
+                border: `2px solid ${COLORS.border}`,
               }}
             >
               <p
                 style={{
                   fontSize: '12px',
-                  fontWeight: '600',
+                  fontWeight: '700',
                   color: COLORS.textLight,
                   margin: '0 0 8px 0',
                   textTransform: 'uppercase',
                   letterSpacing: '0.5px',
                 }}
               >
-                Status
+                Due Status
               </p>
               <p
                 style={{
-                  fontSize: '16px',
-                  fontWeight: '700',
+                  fontSize: '18px',
+                  fontWeight: '800',
                   color: isOverdue
                     ? '#991b1b'
                     : isDueSoon
@@ -500,32 +997,33 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
                   ? `${daysUntilDue}d Due`
                   : 'On Track'}
               </p>
-            </div>
+            </motion.div>
 
-            <div
+            <motion.div
+              whileHover={{ scale: 1.02 }}
               style={{
-                background: `${COLORS.primary}10`,
-                padding: '16px',
-                borderRadius: '12px',
-                border: `1px solid ${COLORS.border}`,
+                background: `${COLORS.primary}15`,
+                padding: '20px',
+                borderRadius: '16px',
+                border: `2px solid ${COLORS.border}`,
               }}
             >
               <p
                 style={{
                   fontSize: '12px',
-                  fontWeight: '600',
+                  fontWeight: '700',
                   color: COLORS.textLight,
                   margin: '0 0 8px 0',
                   textTransform: 'uppercase',
                   letterSpacing: '0.5px',
                 }}
               >
-                Priority
+                Priority Level
               </p>
               <p
                 style={{
-                  fontSize: '16px',
-                  fontWeight: '700',
+                  fontSize: '18px',
+                  fontWeight: '800',
                   color: COLORS.primary,
                   margin: 0,
                   textTransform: 'capitalize',
@@ -533,7 +1031,7 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
               >
                 {editData.priority}
               </p>
-            </div>
+            </motion.div>
           </div>
 
           {/* Complete Button */}
@@ -547,29 +1045,96 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
                 : `linear-gradient(135deg, ${COLORS.primary} 0%, ${COLORS.accent} 100%)`,
               color: task.completed ? '#991b1b' : 'white',
               border: 'none',
-              borderRadius: '12px',
-              padding: '14px',
-              fontWeight: '700',
+              borderRadius: '14px',
+              padding: '16px',
+              fontWeight: '800',
               cursor: 'pointer',
-              fontSize: '14px',
+              fontSize: '15px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '8px',
-              boxShadow: task.completed ? 'none' : `0 8px 16px ${COLORS.primary}25`,
+              gap: '10px',
+              boxShadow: task.completed ? 'none' : `0 8px 20px ${COLORS.primary}30`,
             }}
           >
-            <Check size={18} />
+            <Check size={20} />
             {task.completed ? 'Mark as Incomplete' : 'Mark as Complete'}
           </motion.button>
 
-          {/* Details Sections */}
+          {/* Task Details Grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+            <div
+              style={{
+                background: COLORS.lightBg,
+                padding: '16px',
+                borderRadius: '12px',
+                border: `1px solid ${COLORS.border}`,
+              }}
+            >
+              <p
+                style={{
+                  fontSize: '11px',
+                  fontWeight: '700',
+                  color: COLORS.textLight,
+                  margin: '0 0 8px 0',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                }}
+              >
+                Frequency
+              </p>
+              <p
+                style={{
+                  fontSize: '16px',
+                  fontWeight: '700',
+                  color: COLORS.textDark,
+                  margin: 0,
+                }}
+              >
+                Every {editData.frequency} days
+              </p>
+            </div>
+
+            <div
+              style={{
+                background: COLORS.lightBg,
+                padding: '16px',
+                borderRadius: '12px',
+                border: `1px solid ${COLORS.border}`,
+              }}
+            >
+              <p
+                style={{
+                  fontSize: '11px',
+                  fontWeight: '700',
+                  color: COLORS.textLight,
+                  margin: '0 0 8px 0',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                }}
+              >
+                Cost
+              </p>
+              <p
+                style={{
+                  fontSize: '18px',
+                  fontWeight: '800',
+                  color: COLORS.primary,
+                  margin: 0,
+                }}
+              >
+                ${editData.cost.toFixed(2)}
+              </p>
+            </div>
+          </div>
+
+          {/* Notes */}
           {editData.notes && (
             <div>
               <p
                 style={{
                   fontSize: '12px',
-                  fontWeight: '600',
+                  fontWeight: '700',
                   color: COLORS.textLight,
                   margin: '0 0 12px 0',
                   textTransform: 'uppercase',
@@ -584,36 +1149,13 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
                   color: COLORS.textDark,
                   margin: 0,
                   lineHeight: '1.6',
+                  background: COLORS.lightBg,
+                  padding: '16px',
+                  borderRadius: '12px',
+                  border: `1px solid ${COLORS.border}`,
                 }}
               >
                 {editData.notes}
-              </p>
-            </div>
-          )}
-
-          {editData.cost > 0 && (
-            <div>
-              <p
-                style={{
-                  fontSize: '12px',
-                  fontWeight: '600',
-                  color: COLORS.textLight,
-                  margin: '0 0 8px 0',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px',
-                }}
-              >
-                Cost
-              </p>
-              <p
-                style={{
-                  fontSize: '20px',
-                  fontWeight: '700',
-                  color: COLORS.primary,
-                  margin: 0,
-                }}
-              >
-                ${editData.cost.toFixed(2)}
               </p>
             </div>
           )}
@@ -624,7 +1166,7 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
               <p
                 style={{
                   fontSize: '12px',
-                  fontWeight: '600',
+                  fontWeight: '700',
                   color: COLORS.textLight,
                   margin: '0 0 12px 0',
                   textTransform: 'uppercase',
@@ -636,7 +1178,7 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
               <div
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
                   gap: '12px',
                 }}
               >
@@ -647,10 +1189,11 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
                     alt={`task-${idx}`}
                     style={{
                       width: '100%',
-                      height: '100px',
+                      height: '120px',
                       objectFit: 'cover',
-                      borderRadius: '8px',
+                      borderRadius: '12px',
                       cursor: 'pointer',
+                      border: `2px solid ${COLORS.border}`,
                     }}
                     onClick={() => window.open(photo, '_blank')}
                   />
@@ -663,16 +1206,16 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
           {editData.contractor?.name && (
             <div
               style={{
-                background: COLORS.lightBg,
-                padding: '16px',
-                borderRadius: '12px',
-                border: `1px solid ${COLORS.border}`,
+                background: `linear-gradient(135deg, ${COLORS.primary}10 0%, ${COLORS.accent}10 100%)`,
+                padding: '20px',
+                borderRadius: '16px',
+                border: `2px solid ${COLORS.border}`,
               }}
             >
               <p
                 style={{
                   fontSize: '12px',
-                  fontWeight: '600',
+                  fontWeight: '700',
                   color: COLORS.primary,
                   margin: '0 0 12px 0',
                   textTransform: 'uppercase',
@@ -683,10 +1226,10 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
               </p>
               <p
                 style={{
-                  fontSize: '15px',
-                  fontWeight: '700',
+                  fontSize: '16px',
+                  fontWeight: '800',
                   color: COLORS.textDark,
-                  margin: '0 0 8px 0',
+                  margin: '0 0 12px 0',
                 }}
               >
                 {editData.contractor.name}
@@ -698,8 +1241,8 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
                     color: COLORS.textLight,
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '6px',
-                    margin: '6px 0',
+                    gap: '8px',
+                    margin: '8px 0',
                   }}
                 >
                   <Phone size={14} />
@@ -713,12 +1256,23 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
                     color: COLORS.textLight,
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '6px',
-                    margin: '6px 0',
+                    gap: '8px',
+                    margin: '8px 0',
                   }}
                 >
                   <Mail size={14} />
                   {editData.contractor.email}
+                </p>
+              )}
+              {editData.contractor.rating && (
+                <p
+                  style={{
+                    fontSize: '13px',
+                    color: COLORS.textLight,
+                    margin: '8px 0 0 0',
+                  }}
+                >
+                  Rating: {editData.contractor.rating}/5 ⭐
                 </p>
               )}
             </div>
@@ -729,15 +1283,15 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
             <div
               style={{
                 background: '#fef3c7',
-                padding: '16px',
-                borderRadius: '12px',
-                border: `1px solid ${COLORS.border}`,
+                padding: '20px',
+                borderRadius: '16px',
+                border: `2px solid ${COLORS.border}`,
               }}
             >
               <p
                 style={{
                   fontSize: '12px',
-                  fontWeight: '600',
+                  fontWeight: '700',
                   color: '#92400e',
                   margin: '0 0 12px 0',
                   textTransform: 'uppercase',
@@ -749,8 +1303,8 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
               {editData.warranty.provider && (
                 <p
                   style={{
-                    fontSize: '15px',
-                    fontWeight: '700',
+                    fontSize: '16px',
+                    fontWeight: '800',
                     color: COLORS.textDark,
                     margin: '0 0 8px 0',
                   }}
@@ -762,10 +1316,10 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
                 <p
                   style={{
                     fontSize: '13px',
-                    color: COLORS.textLight,
+                    color: '#92400e',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '6px',
+                    gap: '8px',
                     margin: 0,
                   }}
                 >
