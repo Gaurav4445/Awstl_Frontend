@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Trash2, Mail, UserCheck, Clock, X, Users } from 'lucide-react';
 
@@ -31,35 +31,64 @@ const COLORS = {
 };
 
 const TeamCollaboration: React.FC<TeamCollaborationProps> = ({ isDarkMode }) => {
-  const [members, setMembers] = useState<TeamMember[]>([
-    {
-      id: 1,
-      name: 'You',
-      email: 'you@example.com',
-      role: 'Admin',
-      avatar: 'A',
-      joinedDate: '2026-01-15',
-      status: 'active',
-      taskCount: 12,
-    },
-    {
-      id: 2,
-      name: 'Sarah Johnson',
-      email: 'sarah.johnson@example.com',
-      role: 'Manager',
-      avatar: 'S',
-      joinedDate: '2026-02-01',
-      status: 'active',
-      taskCount: 8,
-    },
-  ]);
-
+  const [members, setMembers] = useState<TeamMember[]>([]);
   const [showForm, setShowForm] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     role: 'Member' as const,
   });
+
+  // Load from localStorage on mount
+  useEffect(() => {
+    try {
+      const stored = window.localStorage.getItem('hm_team');
+      if (stored) {
+        setMembers(JSON.parse(stored));
+      } else {
+        // Set default members only if nothing in localStorage
+        const defaultMembers: TeamMember[] = [
+          {
+            id: 1,
+            name: 'You',
+            email: 'you@example.com',
+            role: 'Admin',
+            avatar: 'A',
+            joinedDate: '2026-01-15',
+            status: 'active',
+            taskCount: 12,
+          },
+          {
+            id: 2,
+            name: 'Sarah Johnson',
+            email: 'sarah.johnson@example.com',
+            role: 'Manager',
+            avatar: 'S',
+            joinedDate: '2026-02-01',
+            status: 'active',
+            taskCount: 8,
+          },
+        ];
+        setMembers(defaultMembers);
+        window.localStorage.setItem('hm_team', JSON.stringify(defaultMembers));
+      }
+    } catch (error) {
+      console.error('Error loading team data:', error);
+    }
+    setIsLoaded(true);
+  }, []);
+
+  // Save to localStorage whenever members change
+  useEffect(() => {
+    if (isLoaded) {
+      try {
+        window.localStorage.setItem('hm_team', JSON.stringify(members));
+      } catch (error) {
+        console.error('Error saving team data:', error);
+      }
+    }
+  }, [members, isLoaded]);
 
   const handleInviteMember = () => {
     if (formData.name && formData.email) {
@@ -115,6 +144,31 @@ const TeamCollaboration: React.FC<TeamCollaborationProps> = ({ isDarkMode }) => 
   const SPRING = {
     smooth: { type: "spring" as const, stiffness: 300, damping: 35 },
   };
+
+  if (!isLoaded) {
+    return (
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: '400px',
+        }}
+      >
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+          style={{
+            width: '40px',
+            height: '40px',
+            borderRadius: '50%',
+            border: '3px solid #0f766e',
+            borderTopColor: 'transparent',
+          }}
+        />
+      </div>
+    );
+  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
